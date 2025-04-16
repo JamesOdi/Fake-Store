@@ -24,8 +24,11 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Accept', 'application/json');
-    console.log(headers);
-    const result = await fetch(url);
+    const result = await fetch(url, {
+      headers,
+      method,
+      body: bodyStr,
+    });
     const js = await result.json();
     return {
       body: js,
@@ -33,7 +36,7 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       headers: result.headers,
     };
   } catch (error) {
-    console.log('result', JSON.stringify(error.message, null, 2));
+    console.log('result', JSON.stringify(error, null, 2));
     return {
       status: 500,
       body: { message: 'Error making api request' },
