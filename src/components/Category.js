@@ -1,9 +1,13 @@
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function Category({ item }) {
+export default function Category({ item, onClick }) {
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={0.4}>
+    <TouchableOpacity
+      style={styles.container}
+      activeOpacity={0.4}
+      onPress={() => onClick()}
+    >
       <Text style={styles.categoryLabel}>{item.label}</Text>
       <Feather name='chevron-right' size={30} />
     </TouchableOpacity>

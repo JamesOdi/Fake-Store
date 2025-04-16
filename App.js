@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Home from './src/Home';
+import Home from './src/screens/Home';
+import Products from './src/screens/Products';
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -12,6 +13,11 @@ export default function App() {
           name='Home'
           component={Home}
           options={{ title: 'Categories' }}
+        />
+        <Stack.Screen
+          name='Products'
+          component={Products}
+          options={{ title: 'Products' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
