@@ -5,6 +5,7 @@ import { GET_ALL_CATEGORIES } from '../lib/routes';
 import { apiRequest, statusOk } from '../lib/api-request';
 import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
 import Loading from '../components/Loading';
+import EmptyList from '../components/EmptyProductsList';
 
 export default function Home({ navigation }) {
   const onClickCategory = (category) => {
@@ -23,7 +24,6 @@ export default function Home({ navigation }) {
       });
       if (statusOk(response)) {
         // response.body is an array
-        // \b([a-z])
         const data = response.body.map((item) => ({
           name: item,
           // capitalize first letter of each word
@@ -31,19 +31,19 @@ export default function Home({ navigation }) {
         }));
         setCategories(data);
       }
+      setLoading(false);
     });
-    setLoading(false);
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchData();
-    }, 2000);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ height: '100%' }}>
       {isLoading ? (
         <Loading />
       ) : (
@@ -54,6 +54,9 @@ export default function Home({ navigation }) {
           )}
           keyExtractor={(item) => item.name}
           contentContainerStyle={styles.containerGapStyle}
+          ListEmptyComponent={
+            <EmptyList title='No Categories' subtitle='No categories found' />
+          }
         />
       )}
     </View>

@@ -51,7 +51,6 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       headers: result.headers,
     };
   } catch (error) {
-    console.log(JSON.stringify(error.message, null, 2));
     return {
       status: 500,
       body: { message: error.message },

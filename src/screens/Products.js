@@ -4,7 +4,7 @@ import { apiRequest, statusOk } from '../lib/api-request';
 import { GET_ALL_PRODUCTS, GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
 import ProductItem from '../components/ProductItem';
 import Button from '../components/Button';
-import EmptyProductList from '../components/EmptyProductsList';
+import EmptyList from '../components/EmptyProductsList';
 import Loading from '../components/Loading';
 import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
 
@@ -41,8 +41,8 @@ export default function Products({ navigation, route }) {
         // response.body is an array
         setItems(response.body);
       }
+      setLoading(false);
     });
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function Products({ navigation, route }) {
   }, [category]);
 
   const onClickProduct = (id) => {
-    //
+    navigation.navigate('ProductDetails', { id });
   };
   return (
     <View>
@@ -77,13 +77,13 @@ export default function Products({ navigation, route }) {
             >
               <Button
                 label='Back'
-                icon='chevron-back'
+                icon='arrow-back-outline'
                 onClick={() => navigation.goBack()}
               />
             </View>
           }
           ListEmptyComponent={
-            <EmptyProductList
+            <EmptyList
               title={emptyState.title}
               subtitle={emptyState.subtitle}
             />

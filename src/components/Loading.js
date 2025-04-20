@@ -1,4 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { appBlue, subtitleColor } from '../lib/colors';
+import { getDeviceHeight } from '../lib/utils';
 
 export default function Loading({
   loadingSpinnerSize = 'large',
@@ -6,7 +8,7 @@ export default function Loading({
 }) {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size={loadingSpinnerSize} />
+      <ActivityIndicator size={loadingSpinnerSize} color={appBlue} />
       <Text style={styles.loadingText}>{loadingText}</Text>
     </View>
   );
@@ -14,6 +16,7 @@ export default function Loading({
 
 const styles = StyleSheet.create({
   container: {
+    height: getDeviceHeight() - 200,
     marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -21,6 +24,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#555',
+    color: subtitleColor,
   },
 });

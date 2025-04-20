@@ -1,5 +1,6 @@
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { appBlack, appWhite } from '../lib/colors';
 
 export default function Category({ item, onClick }) {
   return (
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: appWhite,
     borderRadius: 15,
     elevation: 5,
     paddingHorizontal: 20,
@@ -28,6 +29,6 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     fontSize: 30,
-    color: 'black',
+    color: appBlack,
   },
 });
