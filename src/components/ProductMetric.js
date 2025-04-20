@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { appBlack, subtitleColor } from '../lib/colors';
 
-export default function PriceRateCount({ item }) {
+export default function ProductMetric({ item }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{item.title}:</Text>

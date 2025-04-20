@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Button from './Button';
-import { appBlue } from '../lib/colors';
 import { getDeviceHeight } from '../lib/utils';
 
 export default function ProductNotFound({ navigation }) {

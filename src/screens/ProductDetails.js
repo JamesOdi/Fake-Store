@@ -11,7 +11,7 @@ import { apiRequest, statusOk } from '../lib/api-request';
 import { GET_PRODUCT_BY_ID } from '../lib/routes';
 import Loading from '../components/Loading';
 import { getDeviceWidth } from '../lib/utils';
-import PriceRateCount from '../components/ProductMetric';
+import ProductMetric from '../components/ProductMetric';
 import Button from '../components/Button';
 import {
   appBlack,
@@ -106,7 +106,7 @@ export default function ProductDetails({ navigation, route }) {
             <View style={styles.priceRateCountContainer}>
               <FlatList
                 data={productMetrics}
-                renderItem={PriceRateCount}
+                renderItem={ProductMetric}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}

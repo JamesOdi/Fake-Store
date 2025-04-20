@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { FlatList, StyleSheet, View, ActivityIndicator } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { apiRequest, statusOk } from '../lib/api-request';
-import { GET_ALL_PRODUCTS, GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
+import { GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
 import ProductItem from '../components/ProductItem';
 import Button from '../components/Button';
 import EmptyList from '../components/EmptyProductsList';
@@ -12,11 +12,7 @@ export default function Products({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const { category } = route.params;
   const [items, setItems] = useState([]);
-  const [emptyState, setEmptyState] = useState({
-    title: 'No Products Found',
-    subtitle: 'Start by adding a new product!',
-    icon: 'clipboard-outline',
-  });
+  const [emptyState, setEmptyState] = useState({});
 
   useLayoutEffect(() => {
     const categoryLabel = capitalizeFirstLetterOfEachWord(category);
