@@ -14,7 +14,7 @@ export default function Home({ navigation }) {
       )}
       keyExtractor={(item) => item.name}
       contentContainerStyle={styles.containerGapStyle}
-    ></FlatList>
+    />
   );
 }
 

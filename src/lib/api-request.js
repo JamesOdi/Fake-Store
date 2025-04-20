@@ -1,6 +1,10 @@
+import { fetch } from 'expo/fetch';
+
 export async function apiRequest({ route, routeParams, bodyParams }) {
+  // see: https://docs.expo.dev/guides/environment-variables/
+  // It defines how expo environment variables are defined
   const BASE_URL =
-    process.env.REACT_APP_SERVER_BASE_URL || 'http://localhost:3000/';
+    process.env.EXPO_PUBLIC_SERVER_BASE_URL || 'http://localhost:3000/';
 
   const method = route.method;
   const path = route.path;
@@ -36,11 +40,20 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       headers: result.headers,
     };
   } catch (error) {
-    console.log('result', JSON.stringify(error, null, 2));
     return {
       status: 500,
-      body: { message: 'Error making api request' },
+      body: { message: error.message },
       headers: new Headers(),
     };
+  }
+}
+
+export function statusOk(status) {
+  if (typeof status == 'object' && 'status' in status) {
+    return status.status >= 200 && status.status < 300;
+  } else if (typeof status == 'number') {
+    return status >= 200 && status < 300;
+  } else {
+    return false;
   }
 }
