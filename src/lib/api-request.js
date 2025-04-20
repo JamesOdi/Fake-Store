@@ -1,4 +1,5 @@
 import { fetch } from 'expo/fetch';
+import { Alert } from 'react-native';
 
 export async function apiRequest({ route, routeParams, bodyParams }) {
   // see: https://docs.expo.dev/guides/environment-variables/
@@ -7,13 +8,12 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
     process.env.EXPO_PUBLIC_SERVER_BASE_URL || 'http://localhost:3000/';
 
   const method = route.method;
-  const path = route.path;
+  let path = route.path;
 
   if (routeParams) {
     const routeKeys = Object.keys(routeParams);
-
     routeKeys.forEach((key) => {
-      path.replace(`:${key}`, routeParams[key]);
+      path = path.replace(`:${key}`, routeParams[key]);
     });
   }
 
@@ -23,27 +23,39 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   if (method == 'GET' || method == 'DELETE') {
     bodyStr = undefined;
   }
-
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+  headers.append('Accept', 'application/json');
+  headers.append('Accept-Charset', 'utf-8');
   try {
-    const headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Accept', 'application/json');
     const result = await fetch(url, {
       headers,
       method,
       body: bodyStr,
     });
     const js = await result.json();
+    if (js.error) {
+      switch (js.error) {
+        case 'nodata':
+          showErrorAlertDialog({
+            title: 'No Data Found',
+            message: 'No response data found for this request',
+          });
+          break;
+      }
+      throw new Error(js.error);
+    }
     return {
       body: js,
       status: result.status,
       headers: result.headers,
     };
   } catch (error) {
+    console.log(JSON.stringify(error.message, null, 2));
     return {
       status: 500,
       body: { message: error.message },
-      headers: new Headers(),
+      headers,
     };
   }
 }
@@ -56,4 +68,8 @@ export function statusOk(status) {
   } else {
     return false;
   }
+}
+
+export function showErrorAlertDialog({ title, message }) {
+  Alert.alert(title, message);
 }
