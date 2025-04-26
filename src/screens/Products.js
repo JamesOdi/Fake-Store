@@ -4,7 +4,7 @@ import { apiRequest, statusOk } from '../lib/api-request';
 import { GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
 import ProductItem from '../components/ProductItem';
 import Button from '../components/Button';
-import EmptyList from '../components/EmptyProductsList';
+import EmptyList from '../components/EmptyList';
 import Loading from '../components/Loading';
 import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
 
@@ -52,7 +52,7 @@ export default function Products({ navigation, route }) {
     navigation.navigate('ProductDetails', { id });
   };
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {isLoading ? (
         <Loading />
       ) : (
@@ -64,13 +64,7 @@ export default function Products({ navigation, route }) {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.containerGapStyle}
           ListFooterComponent={
-            <View
-              style={{
-                height: 100,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <View style={{ marginTop: 20 }}>
               <Button
                 label='Back'
                 icon='arrow-back-outline'
@@ -78,6 +72,7 @@ export default function Products({ navigation, route }) {
               />
             </View>
           }
+          ListFooterComponentStyle={{ marginTop: 'auto' }}
           ListEmptyComponent={
             <EmptyList
               title={emptyState.title}
@@ -93,6 +88,7 @@ export default function Products({ navigation, route }) {
 const styles = StyleSheet.create({
   containerGapStyle: {
     gap: 20,
+    flexGrow: 1,
     padding: 15,
   },
 });

@@ -4,7 +4,13 @@ import { appBlack, appRed, appWhite } from '../lib/colors';
 import AddSubtractCounter from './AddSubtractCounter';
 import Button from './Button';
 
-export default function CartItem({ item, onClick }) {
+export default function CartItem({
+  item,
+  onClick,
+  onIncrementItemCount,
+  onDecrementItemCount,
+  onDeleteItem,
+}) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -18,20 +24,18 @@ export default function CartItem({ item, onClick }) {
           <Text style={styles.price}>${item.price}</Text>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            width: '100%',
-            justifyContent: 'space-between',
-            marginTop: 10,
-          }}
-        >
-          <AddSubtractCounter count={item.count} />
+        <View style={styles.itemActionContainer}>
+          <AddSubtractCounter
+            count={item.count}
+            onAdd={() => onIncrementItemCount()}
+            onSubtract={() => onDecrementItemCount()}
+          />
           <Button
             label='Delete'
             minWidth={0}
             color={appRed}
             buttonStyle='outline'
+            onClick={() => onDeleteItem()}
           />
         </View>
       </View>
@@ -49,6 +53,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     elevation: 5,
+  },
+  itemActionContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
   title: {
     fontSize: 15,

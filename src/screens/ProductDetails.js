@@ -26,7 +26,6 @@ export default function ProductDetails({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const imageWidth = getDeviceWidth() * 0.9; // 90% of screen width
   const [productMetrics, setProductMetrics] = useState([]);
-  const [productInCart, setProductInCart] = useState(false);
 
   const fetchData = () => {
     setLoading(true);
@@ -76,9 +75,9 @@ export default function ProductDetails({ navigation, route }) {
   ];
 
   const [actionButtons, setActionButtons] = useState(initialActionButtons);
+  const dispatch = useDispatch();
 
   const items = useSelector((state) => state.cart.items);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (productDetail) {
@@ -99,14 +98,16 @@ export default function ProductDetails({ navigation, route }) {
 
   useEffect(() => {
     const isProductInCart = items.some((item) => item.id === id);
-    setProductInCart(isProductInCart);
+    let actionButton = actionButtons[1];
     if (isProductInCart) {
-      actionButtons[1].label = 'Added to Cart';
-      actionButtons[1].icon = 'checkmark-circle-outline';
-      actionButtons[1].color = appGreen;
-      actionButtons[1].disabled = true;
-      setActionButtons(actionButtons);
+      actionButton.label = 'Added to Cart';
+      actionButton.icon = 'checkmark-circle-outline';
+      actionButton.color = appGreen;
+      actionButton.disabled = true;
+    } else {
+      actionButton = defaultAddToCartButton;
     }
+    setActionButtons([actionButtons[0], actionButton]);
   }, [items]);
 
   return (
@@ -127,14 +128,10 @@ export default function ProductDetails({ navigation, route }) {
               <FlatList
                 data={productMetrics}
                 renderItem={ProductMetric}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(_, index) => index.toString()}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
+                contentContainerStyle={styles.productMetricsListContainerStyle}
               />
             </View>
             <View style={styles.actionButtonsContainer}>
@@ -187,6 +184,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 15,
     backgroundColor: appWhite,
+  },
+  productMetricsListContainerStyle: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   imageHeaderContainer: {
     width: '100%',

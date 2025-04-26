@@ -1,33 +1,41 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign } from '@expo/vector-icons';
-import { appBlue, appLightGray, appRed, appWhite } from '../lib/colors';
+import { appBlue, appLightGray } from '../lib/colors';
 import HomeStack from '../stacks/home/HomeStack';
 import CartStack from '../stacks/cart/CartStack';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import OrdersStack from '../stacks/orders/OrdersStack';
 import ProfileStack from '../stacks/profile/ProfileStack';
 import { useSelector } from 'react-redux';
+import TabIconBadge from './TabIconBadge';
 
 export default function BottomTabNavBar() {
   const Tab = createBottomTabNavigator();
   const cartItems = useSelector((state) => state.cart.items);
   const badgeCounts = new Map([
-    ['CartTab', cartItems.length],
+    ['CartTab', cartItems.reduce((acc, item) => acc + item.count, 0)],
     ['OrdersTab', 1],
   ]);
 
   const renderBadgeIcon = (routeName) => {
     const count = badgeCounts.get(routeName);
     if (count) {
-      return <Badge count={count} />;
+      return <TabIconBadge count={count} />;
     }
     return null;
   };
 
+  const tabScreens = [
+    { name: 'HomeTab', component: HomeStack, title: 'Products' },
+    { name: 'CartTab', component: CartStack, title: 'My Cart' },
+    { name: 'OrdersTab', component: OrdersStack, title: 'My Orders' },
+    { name: 'ProfileTab', component: ProfileStack, title: 'User Profile' },
+  ];
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ color, size }) => {
           let iconName;
           switch (route.name) {
             case 'HomeTab':
@@ -56,35 +64,18 @@ export default function BottomTabNavBar() {
         tabBarStyle: styles.tabBarStyle,
       })}
     >
-      <Tab.Screen
-        name='HomeTab'
-        component={HomeStack}
-        options={{ title: 'Products' }}
-      />
-      <Tab.Screen
-        name='CartTab'
-        component={CartStack}
-        options={{ title: 'My Cart' }}
-      />
-      <Tab.Screen
-        name='OrdersTab'
-        component={OrdersStack}
-        options={{ title: 'My Orders' }}
-      />
-      <Tab.Screen
-        name='ProfileTab'
-        component={ProfileStack}
-        options={{ title: 'User Profile' }}
-      />
+      {/* Render all the tab screens */}
+      {tabScreens.map(({ name, component, title }) => {
+        return (
+          <Tab.Screen
+            key={name}
+            name={name}
+            component={component}
+            options={{ title }}
+          />
+        );
+      })}
     </Tab.Navigator>
-  );
-}
-
-function Badge({ count }) {
-  return (
-    <View style={styles.badgeContainer}>
-      <Text style={styles.badgeText}>{count}</Text>
-    </View>
   );
 }
 
@@ -92,20 +83,5 @@ const styles = StyleSheet.create({
   tabBarStyle: {
     height: 60,
     paddingTop: 7,
-  },
-  badgeContainer: {
-    position: 'absolute',
-    right: -10,
-    top: -5,
-    backgroundColor: appRed,
-    borderRadius: 50,
-    width: 17,
-    height: 17,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: appWhite,
-    fontWeight: 'bold',
   },
 });

@@ -6,23 +6,26 @@ import ProductDetails from '../../screens/ProductDetails';
 export default function HomeStack() {
   const Stack = createStackNavigator();
 
+  const stackScreens = [
+    { name: 'Home', component: Home, title: 'Categories' },
+    { name: 'Products', component: Products, title: 'Products' },
+    {
+      name: 'ProductDetails',
+      component: ProductDetails,
+      title: 'Product Details',
+    },
+  ];
+
   return (
     <Stack.Navigator initialRouteName='Home'>
-      <Stack.Screen
-        name='Home'
-        component={Home}
-        options={{ title: 'Categories' }}
-      />
-      <Stack.Screen
-        name='Products'
-        component={Products}
-        options={{ title: 'Products' }}
-      />
-      <Stack.Screen
-        name='ProductDetails'
-        component={ProductDetails}
-        options={{ title: 'Product Details' }}
-      />
+      {stackScreens.map(({ name, component, title }) => (
+        <Stack.Screen
+          key={name}
+          name={name}
+          component={component}
+          options={{ title }}
+        />
+      ))}
     </Stack.Navigator>
   );
 }

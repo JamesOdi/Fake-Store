@@ -5,7 +5,7 @@ import { GET_ALL_CATEGORIES } from '../lib/routes';
 import { apiRequest, statusOk } from '../lib/api-request';
 import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
 import Loading from '../components/Loading';
-import EmptyList from '../components/EmptyProductsList';
+import EmptyList from '../components/EmptyList';
 
 export default function Home({ navigation }) {
   const onClickCategory = (category) => {

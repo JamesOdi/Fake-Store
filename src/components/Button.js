@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { appBlack, appBlue, appWhite } from '../lib/colors';
+import { appBlue, appWhite } from '../lib/colors';
 
 export default function Button({
   label,
@@ -21,7 +21,7 @@ export default function Button({
           borderColor: buttonStyle === 'outline' ? color : undefined,
           borderWidth: buttonStyle === 'outline' ? 1 : 0,
         },
-        { minWidth: minWidth },
+        { minWidth },
         disabled && { opacity: 0.6, elevation: 0 },
       ]}
       activeOpacity={0.4}
