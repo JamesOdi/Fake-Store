@@ -1,17 +1,43 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { appBlue, appWhite } from '../lib/colors';
+import { appBlack, appBlue, appWhite } from '../lib/colors';
 
-export default function Button({ label, icon, color = appBlue, onClick }) {
+export default function Button({
+  label,
+  icon,
+  color = appBlue,
+  onClick,
+  iconColor = appWhite,
+  disabled = false,
+  minWidth = 150,
+  buttonStyle = 'solid',
+}) {
   return (
     <TouchableOpacity
-      style={[styles.container, { backgroundColor: color }]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: buttonStyle === 'solid' ? color : appWhite,
+          borderColor: buttonStyle === 'outline' ? color : undefined,
+          borderWidth: buttonStyle === 'outline' ? 1 : 0,
+        },
+        { minWidth: minWidth },
+        disabled && { opacity: 0.6, elevation: 0 },
+      ]}
       activeOpacity={0.4}
+      disabled={disabled}
       // if onClick is not passed, do not call it
       onPress={() => onClick && onClick()}
     >
-      {icon && <Ionicons name={icon} size={16} color={appWhite} />}
-      <Text style={styles.label}>{label}</Text>
+      {icon && <Ionicons name={icon} size={16} color={iconColor} />}
+      <Text
+        style={[
+          { fontSize: 16 },
+          { color: buttonStyle == 'outline' ? color : appWhite },
+        ]}
+      >
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -21,15 +47,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 50,
     elevation: 4,
-    minWidth: 150,
     gap: 10,
-  },
-  label: {
-    fontSize: 16,
-    color: appWhite,
   },
 });

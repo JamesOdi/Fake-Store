@@ -13,7 +13,6 @@ export default function Home({ navigation }) {
   };
 
   const [categories, setCategories] = useState([]);
-
   const [isLoading, setLoading] = useState(true);
 
   const fetchData = async () => {

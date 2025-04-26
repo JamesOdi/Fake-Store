@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Image,
-  FlatList,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
 import { apiRequest, statusOk } from '../lib/api-request';
 import { GET_PRODUCT_BY_ID } from '../lib/routes';
 import Loading from '../components/Loading';
@@ -16,6 +9,7 @@ import Button from '../components/Button';
 import {
   appBlack,
   appBlue,
+  appGreen,
   appRed,
   appWhite,
   borderColor,
@@ -23,6 +17,8 @@ import {
 } from '../lib/colors';
 import ProductNotFound from '../components/ProductNotFound';
 import ProductImage from '../components/ProductImage';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../store/cart';
 
 export default function ProductDetails({ navigation, route }) {
   const { id } = route.params;
@@ -30,6 +26,7 @@ export default function ProductDetails({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const imageWidth = getDeviceWidth() * 0.9; // 90% of screen width
   const [productMetrics, setProductMetrics] = useState([]);
+  const [productInCart, setProductInCart] = useState(false);
 
   const fetchData = () => {
     setLoading(true);
@@ -57,6 +54,32 @@ export default function ProductDetails({ navigation, route }) {
     return () => clearTimeout(timer);
   }, []);
 
+  const defaultAddToCartButton = {
+    label: 'Add to Cart',
+    icon: 'cart-outline',
+    color: appBlue,
+    onClick: () => {
+      handleAddToCart();
+    },
+  };
+
+  const initialActionButtons = [
+    {
+      label: 'Back',
+      icon: 'arrow-back-outline',
+      color: appRed,
+      onClick: () => {
+        navigation.goBack();
+      },
+    },
+    defaultAddToCartButton,
+  ];
+
+  const [actionButtons, setActionButtons] = useState(initialActionButtons);
+
+  const items = useSelector((state) => state.cart.items);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (productDetail) {
       const { rating, price } = productDetail;
@@ -70,24 +93,21 @@ export default function ProductDetails({ navigation, route }) {
     }
   }, [productDetail]);
 
-  const actionButtons = [
-    {
-      label: 'Back',
-      icon: 'arrow-back-outline',
-      color: appRed,
-      onClick: () => {
-        navigation.goBack();
-      },
-    },
-    {
-      label: 'Add to Cart',
-      icon: 'cart-outline',
-      color: appBlue,
-      onClick: () => {
-        // Add to cart logic
-      },
-    },
-  ];
+  const handleAddToCart = () => {
+    dispatch(addToCart({ id, count: 1 }));
+  };
+
+  useEffect(() => {
+    const isProductInCart = items.some((item) => item.id === id);
+    setProductInCart(isProductInCart);
+    if (isProductInCart) {
+      actionButtons[1].label = 'Added to Cart';
+      actionButtons[1].icon = 'checkmark-circle-outline';
+      actionButtons[1].color = appGreen;
+      actionButtons[1].disabled = true;
+      setActionButtons(actionButtons);
+    }
+  }, [items]);
 
   return (
     <ScrollView style={styles.container}>
@@ -118,15 +138,22 @@ export default function ProductDetails({ navigation, route }) {
               />
             </View>
             <View style={styles.actionButtonsContainer}>
-              {actionButtons.map((button, index) => (
-                <Button
-                  key={index}
-                  icon={button.icon}
-                  color={button.color}
-                  onClick={() => button.onClick()}
-                  label={button.label}
-                />
-              ))}
+              {actionButtons.map(
+                (
+                  { icon, color, iconColor, label, disabled, onClick },
+                  index
+                ) => (
+                  <Button
+                    key={index}
+                    icon={icon}
+                    color={color}
+                    iconColor={iconColor}
+                    disabled={disabled}
+                    onClick={() => onClick()}
+                    label={label}
+                  />
+                )
+              )}
             </View>
 
             <View style={styles.productDescriptionContainer}>
