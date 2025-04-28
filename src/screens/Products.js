@@ -1,18 +1,19 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { apiRequest, statusOk } from '../lib/api-request';
-import { GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
 import ProductItem from '../components/ProductItem';
 import Button from '../components/Button';
 import EmptyList from '../components/EmptyList';
-import Loading from '../components/Loading';
 import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProducts, loadProductsData } from '../store/products';
+import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
 
 export default function Products({ navigation, route }) {
-  const [isLoading, setLoading] = useState(true);
   const { category } = route.params;
-  const [items, setItems] = useState([]);
   const [emptyState, setEmptyState] = useState({});
+
+  const dispatch = useDispatch();
+  const { products, isLoading, error } = useSelector(getProducts);
 
   useLayoutEffect(() => {
     const categoryLabel = capitalizeFirstLetterOfEachWord(category);
@@ -26,26 +27,8 @@ export default function Products({ navigation, route }) {
     });
   }, [navigation, category]);
 
-  const fetchData = () => {
-    setLoading(true);
-    new Promise(async () => {
-      const response = await apiRequest({
-        route: GET_ALL_PRODUCTS_BY_CATEGORY,
-        routeParams: { category },
-      });
-      if (statusOk(response)) {
-        // response.body is an array
-        setItems(response.body);
-      }
-      setLoading(false);
-    });
-  };
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500); // Adjust time to your preference
-    return () => clearTimeout(timer);
+    dispatch(loadProductsData(category));
   }, [category]);
 
   const onClickProduct = (id) => {
@@ -53,11 +36,13 @@ export default function Products({ navigation, route }) {
   };
   return (
     <View style={{ flex: 1 }}>
-      {isLoading ? (
-        <Loading />
-      ) : (
+      <RenderLoadingErrorOrContent
+        isLoading={isLoading}
+        loadingText='Loading products...'
+        error={error}
+      >
         <FlatList
-          data={items}
+          data={products}
           renderItem={({ item }) => (
             <ProductItem item={item} onClick={() => onClickProduct(item.id)} />
           )}
@@ -80,7 +65,7 @@ export default function Products({ navigation, route }) {
             />
           }
         />
-      )}
+      </RenderLoadingErrorOrContent>
     </View>
   );
 }

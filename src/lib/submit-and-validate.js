@@ -1,0 +1,19 @@
+import { apiRequest, statusOk } from './api-request';
+
+export default async function submitAndValidateThunk(
+  thunkApi,
+  { route, routeParams, bodyParams }
+) {
+  if (!route) {
+    return thunkApi.rejectWithValue('Route is required');
+  }
+  try {
+    const response = await apiRequest({ route, routeParams, bodyParams });
+    if (statusOk(response)) {
+      return response.body;
+    }
+    return thunkApi.rejectWithValue(response.body);
+  } catch (error) {
+    return thunkApi.rejectWithValue(error.message);
+  }
+}

@@ -1,3 +1,6 @@
+// THIS FILE IS USED TO DEFINE THE SERVER ROUTES
+// AND THE API ENDPOINTS
+
 export const GET_ALL_CATEGORIES = {
   method: 'GET',
   path: 'products/categories',

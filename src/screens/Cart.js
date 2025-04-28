@@ -1,84 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { GET_ALL_PRODUCTS } from '../lib/routes';
 import { useDispatch, useSelector } from 'react-redux';
-import { apiRequest, statusOk } from '../lib/api-request';
 import { appGray } from '../lib/colors';
 import CartItem from '../components/CartItem';
 import {
   decrementItemCount,
+  getCart,
   incrementItemCount,
+  loadCartData,
   removeFromCart,
 } from '../store/cart';
-import { formatCurrency } from '../lib/format-number';
 import EmptyList from '../components/EmptyList';
 import Button from '../components/Button';
-import Loading from '../components/Loading';
+import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
 
 export default function Cart({ navigation }) {
-  const [data, setData] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const cartItems = useSelector((state) => state.cart.items);
-  const [numOfItems, setNumOfItems] = useState(0);
+  const { cartData, isLoading, error } = useSelector(getCart);
+  const { totalPrice, totalNumOfItems } = useSelector((state) => state.cart);
+
   const dispatch = useDispatch();
 
   const footerSummaryMetrics = [
     {
       title: 'Items',
-      value: numOfItems,
+      value: totalNumOfItems,
     },
-    { title: 'Total', value: total },
+    { title: 'Total', value: totalPrice },
   ];
 
-  const fetchData = () => {
-    new Promise(async () => {
-      const response = await apiRequest({
-        route: GET_ALL_PRODUCTS,
-      });
-      if (statusOk(response)) {
-        setProducts(response.body);
-      }
-    });
-  };
-
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      fetchData();
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    dispatch(loadCartData());
   }, []);
-
-  useEffect(() => {
-    if (products.length > 0) {
-      setTotal(
-        formatCurrency(
-          products.reduce((acc, product) => {
-            const cartItem = cartItems.find((item) => item.id === product.id);
-            if (cartItem) {
-              return acc + product.price * cartItem.count;
-            }
-            return acc;
-          }, 0)
-        )
-      );
-      setNumOfItems(cartItems.reduce((acc, item) => acc + item.count, 0));
-      const cartItemsData = [];
-      products.forEach((product) => {
-        const cartItem = cartItems.find((item) => item.id === product.id);
-        if (cartItem) {
-          cartItemsData.push({
-            ...product,
-            count: cartItem.count,
-          });
-        }
-      });
-      setData(cartItemsData);
-    }
-  }, [products, cartItems]);
 
   const onClickProduct = (id) => {
     // Reference to the usage of navigation between Tabs
@@ -91,11 +43,13 @@ export default function Cart({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      {isLoading ? (
-        <Loading loadingText='Loading your cart...' />
-      ) : (
+      <RenderLoadingErrorOrContent
+        isLoading={isLoading}
+        error={error}
+        loadingText='Loading your cart...'
+      >
         <FlatList
-          data={data}
+          data={cartData}
           renderItem={({ item }) => {
             return (
               <CartItem
@@ -117,17 +71,17 @@ export default function Cart({ navigation }) {
           }
           keyExtractor={(item) => item.id.toString()}
           ListFooterComponent={
-            data.length > 0 && (
+            cartData.length > 0 && (
               <ListBottomFooterComponent
                 bottom={footerSummaryMetrics}
-                total={total}
-                numOfCartItems={numOfItems}
+                total={totalPrice}
+                numOfCartItems={totalNumOfItems}
               />
             )
           }
           ListFooterComponentStyle={{ marginTop: 'auto' }}
         />
-      )}
+      </RenderLoadingErrorOrContent>
     </View>
   );
 }

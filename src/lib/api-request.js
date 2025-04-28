@@ -27,7 +27,10 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   headers.append('Content-Type', 'application/json');
   headers.append('Accept', 'application/json');
   headers.append('Accept-Charset', 'utf-8');
+
   try {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const result = await fetch(url, {
       headers,
       method,
@@ -35,15 +38,17 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
     });
     const js = await result.json();
     if (js.error) {
+      let errorMessage = '';
       switch (js.error) {
         case 'nodata':
+          errorMessage = 'No response data found for this request';
           showErrorAlertDialog({
             title: 'No Data Found',
-            message: 'No response data found for this request',
+            message: errorMessage,
           });
           break;
       }
-      throw new Error(js.error);
+      throw new Error(errorMessage);
     }
     return {
       body: js,
@@ -53,7 +58,7 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   } catch (error) {
     return {
       status: 500,
-      body: { message: error.message },
+      body: error.message,
       headers,
     };
   }

@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
-import { apiRequest, statusOk } from '../lib/api-request';
-import { GET_PRODUCT_BY_ID } from '../lib/routes';
-import Loading from '../components/Loading';
 import { getDeviceWidth } from '../lib/utils';
 import ProductMetric from '../components/ProductMetric';
 import Button from '../components/Button';
@@ -15,42 +12,21 @@ import {
   borderColor,
   subtitleColor,
 } from '../lib/colors';
-import ProductNotFound from '../components/ProductNotFound';
 import ProductImage from '../components/ProductImage';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/cart';
+import { getProduct, loadProductData } from '../store/product';
+import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
 
 export default function ProductDetails({ navigation, route }) {
   const { id } = route.params;
-  const [productDetail, setProductDetail] = useState(undefined);
-  const [isLoading, setLoading] = useState(true);
   const imageWidth = getDeviceWidth() * 0.9; // 90% of screen width
   const [productMetrics, setProductMetrics] = useState([]);
-
-  const fetchData = () => {
-    setLoading(true);
-    new Promise(async () => {
-      const response = await apiRequest({
-        route: GET_PRODUCT_BY_ID,
-        routeParams: { id },
-      });
-
-      if (statusOk(response)) {
-        // response.body is an object
-        const data = response.body;
-        setProductDetail(data);
-      } else {
-        setProductDetail(undefined);
-      }
-      setLoading(false);
-    });
-  };
+  const dispatch = useDispatch();
+  const { product, isLoading, error } = useSelector(getProduct);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
+    dispatch(loadProductData(id));
   }, []);
 
   const defaultAddToCartButton = {
@@ -75,13 +51,12 @@ export default function ProductDetails({ navigation, route }) {
   ];
 
   const [actionButtons, setActionButtons] = useState(initialActionButtons);
-  const dispatch = useDispatch();
 
   const items = useSelector((state) => state.cart.items);
 
   useEffect(() => {
-    if (productDetail) {
-      const { rating, price } = productDetail;
+    if (product) {
+      const { rating, price } = product;
       const rate = rating?.rate || 0;
       const count = rating?.count || 0;
       setProductMetrics([
@@ -90,7 +65,7 @@ export default function ProductDetails({ navigation, route }) {
         { title: 'Price', value: `$${price}` },
       ]);
     }
-  }, [productDetail]);
+  }, [product]);
 
   const handleAddToCart = () => {
     dispatch(addToCart({ id, count: 1 }));
@@ -112,18 +87,17 @@ export default function ProductDetails({ navigation, route }) {
 
   return (
     <ScrollView style={styles.container}>
-      {isLoading ? (
-        <Loading loadingText='Loading product details...' />
-      ) : productDetail ? (
+      <RenderLoadingErrorOrContent
+        isLoading={isLoading}
+        error={error}
+        loadingText='Loading product details...'
+      >
         <>
           <View style={styles.imageHeaderContainer}>
-            <ProductImage
-              imageUrl={productDetail.image}
-              imageWidth={imageWidth}
-            />
+            <ProductImage imageUrl={product.image} imageWidth={imageWidth} />
           </View>
           <View style={styles.content}>
-            <Text style={styles.title}>{productDetail.title}</Text>
+            <Text style={styles.title}>{product.title}</Text>
             <View style={styles.priceRateCountContainer}>
               <FlatList
                 data={productMetrics}
@@ -155,15 +129,11 @@ export default function ProductDetails({ navigation, route }) {
 
             <View style={styles.productDescriptionContainer}>
               <Text style={styles.title}>Description</Text>
-              <Text style={styles.description}>
-                {productDetail.description}
-              </Text>
+              <Text style={styles.description}>{product.description}</Text>
             </View>
           </View>
         </>
-      ) : (
-        <ProductNotFound navigation={navigation} />
-      )}
+      </RenderLoadingErrorOrContent>
     </ScrollView>
   );
 }
