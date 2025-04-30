@@ -17,11 +17,11 @@ export default function CartItem({
       onPress={() => onClick && onClick()}
       style={styles.container}
     >
-      <ProductImage imageUrl={item.image} imageWidth={100} />
+      <ProductImage imageUrl={item.product.image} imageWidth={100} />
       <View style={styles.col2}>
         <View style={{ gap: 2 }}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.price}>${item.price}</Text>
+          <Text style={styles.title}>{item.product.title}</Text>
+          <Text style={styles.price}>${item.product.price}</Text>
         </View>
 
         <View style={styles.itemActionContainer}>

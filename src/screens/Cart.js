@@ -7,7 +7,6 @@ import {
   decrementItemCount,
   getCart,
   incrementItemCount,
-  loadCartData,
   removeFromCart,
 } from '../store/cart';
 import EmptyList from '../components/EmptyList';
@@ -27,10 +26,6 @@ export default function Cart({ navigation }) {
     },
     { title: 'Total', value: totalPrice },
   ];
-
-  useEffect(() => {
-    dispatch(loadCartData());
-  }, []);
 
   const onClickProduct = (id) => {
     // Reference to the usage of navigation between Tabs
@@ -54,7 +49,7 @@ export default function Cart({ navigation }) {
             return (
               <CartItem
                 item={item}
-                onClick={() => onClickProduct(item.id)}
+                onClick={() => onClickProduct(item.product.id)}
                 onIncrementItemCount={() => dispatch(incrementItemCount(item))}
                 onDecrementItemCount={() => dispatch(decrementItemCount(item))}
                 onDeleteItem={() => dispatch(removeFromCart(item))}
@@ -69,7 +64,7 @@ export default function Cart({ navigation }) {
               subtitle='No items in your cart'
             />
           }
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.product.id.toString()}
           ListFooterComponent={
             cartData.length > 0 && (
               <ListBottomFooterComponent

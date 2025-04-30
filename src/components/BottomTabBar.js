@@ -11,9 +11,9 @@ import TabIconBadge from './TabIconBadge';
 
 export default function BottomTabNavBar() {
   const Tab = createBottomTabNavigator();
-  const cartItems = useSelector((state) => state.cart.items);
+  const totalNumOfItems = useSelector((state) => state.cart.totalNumOfItems);
   const badgeCounts = new Map([
-    ['CartTab', cartItems.reduce((acc, item) => acc + item.count, 0)],
+    ['CartTab', totalNumOfItems],
     ['OrdersTab', 1],
   ]);
 

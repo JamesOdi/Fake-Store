@@ -27,15 +27,13 @@ export default function ProductDetails({ navigation, route }) {
 
   useEffect(() => {
     dispatch(loadProductData(id));
-  }, []);
+  }, [id]);
 
   const defaultAddToCartButton = {
     label: 'Add to Cart',
     icon: 'cart-outline',
     color: appBlue,
-    onClick: () => {
-      handleAddToCart();
-    },
+    onClick: () => {},
   };
 
   const initialActionButtons = [
@@ -43,16 +41,14 @@ export default function ProductDetails({ navigation, route }) {
       label: 'Back',
       icon: 'arrow-back-outline',
       color: appRed,
-      onClick: () => {
-        navigation.goBack();
-      },
+      onClick: () => {},
     },
     defaultAddToCartButton,
   ];
 
   const [actionButtons, setActionButtons] = useState(initialActionButtons);
 
-  const items = useSelector((state) => state.cart.items);
+  const cartItems = useSelector((state) => state.cart.cartData);
 
   useEffect(() => {
     if (product) {
@@ -67,12 +63,12 @@ export default function ProductDetails({ navigation, route }) {
     }
   }, [product]);
 
-  const handleAddToCart = () => {
-    dispatch(addToCart({ id, count: 1 }));
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({ product, count: 1 }));
   };
 
   useEffect(() => {
-    const isProductInCart = items.some((item) => item.id === id);
+    const isProductInCart = cartItems.some((item) => item.product.id === id);
     let actionButton = actionButtons[1];
     if (isProductInCart) {
       actionButton.label = 'Added to Cart';
@@ -83,7 +79,7 @@ export default function ProductDetails({ navigation, route }) {
       actionButton = defaultAddToCartButton;
     }
     setActionButtons([actionButtons[0], actionButton]);
-  }, [items]);
+  }, [cartItems]);
 
   return (
     <ScrollView style={styles.container}>
@@ -120,7 +116,13 @@ export default function ProductDetails({ navigation, route }) {
                     color={color}
                     iconColor={iconColor}
                     disabled={disabled}
-                    onClick={() => onClick()}
+                    onClick={() => {
+                      if (index == 0) {
+                        navigation.goBack();
+                      } else {
+                        handleAddToCart(product);
+                      }
+                    }}
                     label={label}
                   />
                 )

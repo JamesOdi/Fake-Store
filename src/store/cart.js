@@ -1,21 +1,7 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import submitAndValidateThunk from '../lib/submit-and-validate';
-import { GET_ALL_PRODUCTS } from '../lib/routes';
-import addExtraReducers from '../lib/addExtraReducers';
+import { createSlice } from '@reduxjs/toolkit';
 import { formatCurrency } from '../lib/format-number';
 
-export const loadCartData = createAsyncThunk(
-  'loadCart',
-  async (_, thunkApi) => {
-    return await submitAndValidateThunk(thunkApi, {
-      route: GET_ALL_PRODUCTS,
-    });
-  }
-);
-
 const initialState = {
-  products: [],
-  items: [],
   cartData: [],
   totalPrice: '',
   totalNumOfItems: 0,
@@ -28,92 +14,67 @@ export const cart = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      if (state.items.some((item) => item.id === action.payload.id)) {
+      if (
+        state.cartData.some(
+          (item) => item.product.id === action.payload.product.id
+        )
+      ) {
         return;
       }
-      // payload: {id: string, count: number}
-      state.items.push(action.payload);
-      updateCartState(state, state.products);
+      // payload: { product: Product, count: number }
+      state.cartData.push(action.payload);
+      updateCartState(state);
     },
     incrementItemCount: (state, action) => {
-      const item = state.items.find((item) => item.id === action.payload.id);
+      const item = state.cartData.find(
+        (item) => item.product.id === action.payload.product.id
+      );
       if (item) {
         item.count += 1;
       }
-      updateCartState(state, state.products);
+      updateCartState(state);
     },
     decrementItemCount: (state, action) => {
-      const item = state.items.find((item) => item.id === action.payload.id);
+      const item = state.cartData.find(
+        (item) => item.product.id === action.payload.product.id
+      );
       if (item) {
         if (item.count > 1) {
           item.count -= 1;
         } else {
-          const index = state.items.findIndex(
-            (item) => item.id === action.payload.id
+          const index = state.cartData.findIndex(
+            (item) => item.product.id === action.payload.product.id
           );
           if (index !== -1) {
-            state.items.splice(index, 1);
+            state.cartData.splice(index, 1);
           }
         }
       }
-      updateCartState(state, state.products);
+      updateCartState(state);
     },
     removeFromCart: (state, action) => {
-      const index = state.items.findIndex(
-        (item) => item.id === action.payload.id
+      const index = state.cartData.findIndex(
+        (item) => item.product.id === action.payload.product.id
       );
       if (index !== -1) {
-        state.items.splice(index, 1);
+        state.cartData.splice(index, 1);
       }
-      updateCartState(state, state.products);
+      updateCartState(state);
     },
-  },
-  extraReducers: (builder) => {
-    addExtraReducers(
-      builder,
-      loadCartData,
-      initialState,
-      'cartData',
-      (response, state) => {
-        return updateCartState(state, response, true);
-      }
-    );
   },
 });
 
-function updateCartState(state, products, loadingProducts = false) {
+function updateCartState(state) {
   state.totalPrice = formatCurrency(
-    products.reduce((acc, product) => {
-      const cartItem = state.items.find((item) => item.id === product.id);
-      if (cartItem) {
-        return acc + product.price * cartItem.count;
-      }
-      return acc;
+    state.cartData.reduce((acc, item) => {
+      return acc + item.product.price * item.count;
     }, 0)
   );
 
-  state.totalNumOfItems = state.items.reduce(
+  state.totalNumOfItems = state.cartData.reduce(
     (acc, item) => acc + item.count,
     0
   );
-
-  const cartItemsData = [];
-  products.forEach((product) => {
-    const cartItem = state.items.find((item) => item.id === product.id);
-    if (cartItem) {
-      cartItemsData.push({
-        ...product,
-        count: cartItem.count,
-      });
-    }
-  });
-
-  if (loadingProducts) {
-    state.products = products;
-  } else {
-    state.cartData = cartItemsData;
-  }
-  return cartItemsData;
 }
 
 export const {
