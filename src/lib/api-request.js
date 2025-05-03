@@ -1,5 +1,9 @@
 import { fetch } from 'expo/fetch';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USER_SIGN_IN, USER_SIGN_UP } from './routes';
+
+const ASYNC_STORAGE_TOKEN_KEY = 'token';
 
 export async function apiRequest({ route, routeParams, bodyParams }) {
   // see: https://docs.expo.dev/guides/environment-variables/
@@ -23,11 +27,16 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   if (method == 'GET' || method == 'DELETE') {
     bodyStr = undefined;
   }
+
+  const token = await getAuthorizationCookie();
+
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Accept', 'application/json');
   headers.append('Accept-Charset', 'utf-8');
-
+  if (token) {
+    headers.append('Authorization', `Bearer ${token}`);
+  }
   try {
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -50,6 +59,14 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       }
       throw new Error(errorMessage);
     }
+
+    if (route.path == USER_SIGN_UP.path || route.path == USER_SIGN_IN.path) {
+      if ('token' in js) {
+        // Save the authorization cookie if it exists in the response
+        await saveAuthorizationCookie(js.token);
+      }
+    }
+
     return {
       body: js,
       status: result.status,
@@ -76,4 +93,21 @@ export function statusOk(status) {
 
 export function showErrorAlertDialog({ title, message }) {
   Alert.alert(title, message);
+}
+
+export async function saveAuthorizationCookie(cookie) {
+  try {
+    await AsyncStorage.setItem(ASYNC_STORAGE_TOKEN_KEY, cookie);
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function getAuthorizationCookie() {
+  try {
+    const cookie = await AsyncStorage.getItem(ASYNC_STORAGE_TOKEN_KEY);
+    return cookie || '';
+  } catch (e) {
+    throw e;
+  }
 }

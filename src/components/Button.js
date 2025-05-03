@@ -1,5 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { appBlue, appWhite } from '../lib/colors';
 
 export default function Button({
@@ -11,6 +16,7 @@ export default function Button({
   disabled = false,
   minWidth = 150,
   buttonStyle = 'solid',
+  isLoading = false,
 }) {
   return (
     <TouchableOpacity
@@ -22,22 +28,28 @@ export default function Button({
           borderWidth: buttonStyle === 'outline' ? 1 : 0,
         },
         { minWidth },
-        disabled && { opacity: 0.6, elevation: 0 },
+        (isLoading || disabled) && { opacity: 0.6, elevation: 0 },
       ]}
       activeOpacity={0.4}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       // if onClick is not passed, do not call it
       onPress={() => onClick && onClick()}
     >
-      {icon && <Ionicons name={icon} size={16} color={iconColor} />}
-      <Text
-        style={[
-          { fontSize: 16 },
-          { color: buttonStyle == 'outline' ? color : appWhite },
-        ]}
-      >
-        {label}
-      </Text>
+      {isLoading ? (
+        <ActivityIndicator color={appWhite} />
+      ) : (
+        <>
+          {icon && <Ionicons name={icon} size={16} color={iconColor} />}
+          <Text
+            style={[
+              { fontSize: 16 },
+              { color: buttonStyle == 'outline' ? color : appWhite },
+            ]}
+          >
+            {label}
+          </Text>
+        </>
+      )}
     </TouchableOpacity>
   );
 }
@@ -47,7 +59,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 50,
     elevation: 4,

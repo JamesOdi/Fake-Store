@@ -24,11 +24,7 @@ const initialState = {
 
 const productSlice = createSlice({
   name: 'product',
-  initialState: {
-    product: {},
-    isLoading: false,
-    error: null,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     addExtraReducers(builder, loadProductData, initialState, 'product');

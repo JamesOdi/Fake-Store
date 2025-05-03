@@ -106,10 +106,7 @@ export default function ProductDetails({ navigation, route }) {
             </View>
             <View style={styles.actionButtonsContainer}>
               {actionButtons.map(
-                (
-                  { icon, color, iconColor, label, disabled, onClick },
-                  index
-                ) => (
+                ({ icon, color, iconColor, label, disabled }, index) => (
                   <Button
                     key={index}
                     icon={icon}

@@ -10,7 +10,11 @@ export default async function submitAndValidateThunk(
   try {
     const response = await apiRequest({ route, routeParams, bodyParams });
     if (statusOk(response)) {
-      return response.body;
+      const data = response.body;
+      if ('status' in data && data.status == 'error') {
+        return thunkApi.rejectWithValue(data.message);
+      }
+      return data;
     }
     return thunkApi.rejectWithValue(response.body);
   } catch (error) {
