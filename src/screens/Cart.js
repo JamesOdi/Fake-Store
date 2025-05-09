@@ -1,30 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { appGray } from '../lib/colors';
+import { appLightGray, appWhite } from '../lib/colors';
 import CartItem from '../components/CartItem';
 import {
-  decrementItemCount,
+  addCartItem,
+  decrementOrRemoveCartItem,
   getCart,
-  incrementItemCount,
-  removeFromCart,
+  loadCart,
 } from '../store/cart';
 import EmptyList from '../components/EmptyList';
 import Button from '../components/Button';
 import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
+import { getTotalNumberOfItems, getTotalPrice } from '../lib/format-number';
+import SubmitAndValidateButton from '../components/SubmitAndValidateButton';
+import { createNewOrder, getOrders, loadOrders } from '../store/orders';
 
 export default function Cart({ navigation }) {
-  const { cartData, isLoading, error } = useSelector(getCart);
-  const { totalPrice, totalNumOfItems } = useSelector((state) => state.cart);
+  const { cartData, isLoading, isComponentLoading, error } =
+    useSelector(getCart);
+  const [action, setAction] = useState({
+    id: '',
+    action: '',
+  });
 
   const dispatch = useDispatch();
 
   const footerSummaryMetrics = [
     {
       title: 'Items',
-      value: totalNumOfItems,
+      value: getTotalNumberOfItems(cartData),
     },
-    { title: 'Total', value: totalPrice },
+    { title: 'Total', value: getTotalPrice(cartData) },
   ];
 
   const onClickProduct = (id) => {
@@ -36,8 +43,13 @@ export default function Cart({ navigation }) {
     });
   };
 
+  useEffect(() => {
+    dispatch(loadOrders());
+    dispatch(loadCart());
+  }, []);
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: appWhite }}>
       <RenderLoadingErrorOrContent
         isLoading={isLoading}
         error={error}
@@ -49,10 +61,29 @@ export default function Cart({ navigation }) {
             return (
               <CartItem
                 item={item}
-                onClick={() => onClickProduct(item.product.id)}
-                onIncrementItemCount={() => dispatch(incrementItemCount(item))}
-                onDecrementItemCount={() => dispatch(decrementItemCount(item))}
-                onDeleteItem={() => dispatch(removeFromCart(item))}
+                isActive={item.product.id === action.id}
+                action={action.action}
+                isComponentLoading={isComponentLoading}
+                onClick={() => {
+                  onClickProduct(item.product.id);
+                }}
+                onIncrementItemCount={() => {
+                  setAction({ id: item.product.id, action: 'plus' });
+                  dispatch(addCartItem(item.product));
+                }}
+                onDecrementItemCount={() => {
+                  setAction({ id: item.product.id, action: 'minus' });
+                  dispatch(decrementOrRemoveCartItem({ id: item.product.id }));
+                }}
+                onDeleteItem={() => {
+                  setAction({ id: item.product.id, action: 'delete' });
+                  dispatch(
+                    decrementOrRemoveCartItem({
+                      id: item.product.id,
+                      action: 'remove',
+                    })
+                  );
+                }}
               />
             );
           }}
@@ -69,8 +100,9 @@ export default function Cart({ navigation }) {
             cartData.length > 0 && (
               <ListBottomFooterComponent
                 bottom={footerSummaryMetrics}
-                total={totalPrice}
-                numOfCartItems={totalNumOfItems}
+                total={getTotalPrice(cartData)}
+                numOfCartItems={getTotalNumberOfItems(cartData)}
+                cartData={cartData}
               />
             )
           }
@@ -81,7 +113,12 @@ export default function Cart({ navigation }) {
   );
 }
 
-function ListBottomFooterComponent({ bottom, total, numOfCartItems }) {
+function ListBottomFooterComponent({
+  bottom,
+  total,
+  numOfCartItems,
+  cartData,
+}) {
   return (
     <View style={{ gap: 30, marginTop: 50 }}>
       <View style={styles.footerContainer}>
@@ -98,9 +135,11 @@ function ListBottomFooterComponent({ bottom, total, numOfCartItems }) {
           <Text style={styles.subtotal}>{total}</Text>
         </View>
       </View>
-      <Button
+      <SubmitAndValidateButton
         icon='card-outline'
         label={`Proceed to Checkout (${numOfCartItems} items)`}
+        selector={getOrders}
+        thunkApiFunction={() => createNewOrder(cartData)}
       />
     </View>
   );
@@ -118,7 +157,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: appGray,
+    borderColor: appLightGray,
   },
   numericValueContainer: {
     flexDirection: 'row',

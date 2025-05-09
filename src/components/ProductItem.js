@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { appBlack, appWhite } from '../lib/colors';
 import ProductImage from './ProductImage';
+import { formatCurrency } from '../lib/format-number';
 
 export default function ProductItem({ item, onClick }) {
   return (
@@ -13,7 +14,8 @@ export default function ProductItem({ item, onClick }) {
       <View style={styles.col2}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.price}>
-          <Text style={{ fontWeight: 'bold' }}>Price: </Text>${item.price}
+          <Text style={{ fontWeight: 'bold' }}>Price: </Text>
+          {formatCurrency(item.price)}
         </Text>
       </View>
     </TouchableOpacity>

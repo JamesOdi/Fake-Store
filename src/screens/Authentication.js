@@ -62,7 +62,7 @@ export default function Authentication({ navigation }) {
   };
 
   const { user } = useSelector(getUser);
-  const { login, logout } = useUser();
+  const { login } = useUser();
 
   const [form, setForm] = useState(new AuthenticationForm());
 
@@ -84,10 +84,7 @@ export default function Authentication({ navigation }) {
 
   useEffect(() => {
     if (user) {
-      login(user);
-      navigation.replace('Profile');
-    } else {
-      logout();
+      login(user, navigation);
     }
   }, [user]);
 
@@ -160,7 +157,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: '10%',
     gap: 10,
-    backgroundColor: appWhite,
   },
   title: {
     fontWeight: 'bold',

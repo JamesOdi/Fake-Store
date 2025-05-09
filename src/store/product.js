@@ -27,7 +27,12 @@ const productSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    addExtraReducers(builder, loadProductData, initialState, 'product');
+    addExtraReducers({
+      builder,
+      thunk: loadProductData,
+      initialState,
+      responseKey: 'product',
+    });
   },
 });
 

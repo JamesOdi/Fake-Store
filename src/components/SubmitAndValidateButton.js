@@ -14,10 +14,10 @@ export default function SubmitAndValidateButton({
   selector,
   thunkApiFunction,
 }) {
-  const { isLoading, error } = useSelector(selector);
+  const { isComponentLoading, error } = useSelector(selector);
   const dispatch = useDispatch();
   return (
-    <View style={{ flexDirection: 'column', gap: 10 }}>
+    <View style={{ flexDirection: 'column', gap: 10, flexGrow: 1 }}>
       {error && (
         <View
           style={{
@@ -33,7 +33,7 @@ export default function SubmitAndValidateButton({
         </View>
       )}
       <Button
-        isLoading={isLoading}
+        isLoading={isComponentLoading}
         label={label}
         icon={icon}
         color={color}

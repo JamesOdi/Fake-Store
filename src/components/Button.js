@@ -28,6 +28,7 @@ export default function Button({
           borderWidth: buttonStyle === 'outline' ? 1 : 0,
         },
         { minWidth },
+        { flexGrow: 1 },
         (isLoading || disabled) && { opacity: 0.6, elevation: 0 },
       ]}
       activeOpacity={0.4}
@@ -36,7 +37,9 @@ export default function Button({
       onPress={() => onClick && onClick()}
     >
       {isLoading ? (
-        <ActivityIndicator color={appWhite} />
+        <ActivityIndicator
+          color={buttonStyle == 'outline' ? color : appWhite}
+        />
       ) : (
         <>
           {icon && <Ionicons name={icon} size={16} color={iconColor} />}

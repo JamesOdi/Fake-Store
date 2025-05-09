@@ -5,6 +5,7 @@ import EmptyList from '../components/EmptyList';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCategories, loadCategoriesData } from '../store/categories';
 import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
+import { appWhite } from '../lib/colors';
 
 export default function Home({ navigation }) {
   const onClickCategory = (category) => {
@@ -19,7 +20,7 @@ export default function Home({ navigation }) {
   }, []);
 
   return (
-    <View style={{ height: '100%' }}>
+    <View style={{ flex: 1, backgroundColor: appWhite }}>
       <RenderLoadingErrorOrContent isLoading={isLoading} error={error}>
         <FlatList
           data={categories}

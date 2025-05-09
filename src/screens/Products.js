@@ -7,6 +7,7 @@ import { capitalizeFirstLetterOfEachWord } from '../lib/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProducts, loadProductsData } from '../store/products';
 import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
+import { appWhite } from '../lib/colors';
 
 export default function Products({ navigation, route }) {
   const { category } = route.params;
@@ -35,7 +36,7 @@ export default function Products({ navigation, route }) {
     navigation.navigate('ProductDetails', { id });
   };
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: appWhite }}>
       <RenderLoadingErrorOrContent
         isLoading={isLoading}
         loadingText='Loading products...'

@@ -24,20 +24,20 @@ const categoriesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    addExtraReducers(
+    addExtraReducers({
       builder,
-      loadCategoriesData,
+      thunk: loadCategoriesData,
       initialState,
-      'categories',
+      responseKey: 'categories',
       // format the response to an array of objects with name and label properties
-      (response) => {
+      formatFulfilledResponse: (response) => {
         return response.map((item) => ({
           name: item,
           // capitalize first letter of each word
           label: capitalizeFirstLetterOfEachWord(item),
         }));
-      }
-    );
+      },
+    });
   },
 });
 

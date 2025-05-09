@@ -8,13 +8,15 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
 
-  const login = (userData) => {
+  const login = (userData, navigation) => {
     setUser(userData);
+    navigation.replace('Profile');
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = (navigation) => {
     dispatch(signOutUser());
+    setUser(null);
+    navigation.replace('Authentication');
   };
 
   const updateUser = (newData) => {

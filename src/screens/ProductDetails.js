@@ -14,9 +14,11 @@ import {
 } from '../lib/colors';
 import ProductImage from '../components/ProductImage';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../store/cart';
+import { addCartItem, getCart } from '../store/cart';
 import { getProduct, loadProductData } from '../store/product';
 import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
+import SubmitAndValidateButton from '../components/SubmitAndValidateButton';
+import { formatCurrency } from '../lib/format-number';
 
 export default function ProductDetails({ navigation, route }) {
   const { id } = route.params;
@@ -33,20 +35,11 @@ export default function ProductDetails({ navigation, route }) {
     label: 'Add to Cart',
     icon: 'cart-outline',
     color: appBlue,
-    onClick: () => {},
   };
 
-  const initialActionButtons = [
-    {
-      label: 'Back',
-      icon: 'arrow-back-outline',
-      color: appRed,
-      onClick: () => {},
-    },
-    defaultAddToCartButton,
-  ];
-
-  const [actionButtons, setActionButtons] = useState(initialActionButtons);
+  const [addToCartButton, setAddToCartButton] = useState(
+    defaultAddToCartButton
+  );
 
   const cartItems = useSelector((state) => state.cart.cartData);
 
@@ -58,27 +51,23 @@ export default function ProductDetails({ navigation, route }) {
       setProductMetrics([
         { title: 'Rating', value: rate },
         { title: 'Count', value: count },
-        { title: 'Price', value: `$${price}` },
+        { title: 'Price', value: formatCurrency(price) },
       ]);
     }
   }, [product]);
 
-  const handleAddToCart = (product) => {
-    dispatch(addToCart({ product, count: 1 }));
-  };
-
   useEffect(() => {
     const isProductInCart = cartItems.some((item) => item.product.id === id);
-    let actionButton = actionButtons[1];
     if (isProductInCart) {
-      actionButton.label = 'Added to Cart';
-      actionButton.icon = 'checkmark-circle-outline';
-      actionButton.color = appGreen;
-      actionButton.disabled = true;
+      setAddToCartButton({
+        label: 'Added to Cart',
+        icon: 'checkmark-circle-outline',
+        color: appGreen,
+        disabled: true,
+      });
     } else {
-      actionButton = defaultAddToCartButton;
+      setAddToCartButton(defaultAddToCartButton);
     }
-    setActionButtons([actionButtons[0], actionButton]);
   }, [cartItems]);
 
   return (
@@ -105,25 +94,29 @@ export default function ProductDetails({ navigation, route }) {
               />
             </View>
             <View style={styles.actionButtonsContainer}>
-              {actionButtons.map(
-                ({ icon, color, iconColor, label, disabled }, index) => (
-                  <Button
-                    key={index}
-                    icon={icon}
-                    color={color}
-                    iconColor={iconColor}
-                    disabled={disabled}
-                    onClick={() => {
-                      if (index == 0) {
-                        navigation.goBack();
-                      } else {
-                        handleAddToCart(product);
-                      }
-                    }}
-                    label={label}
-                  />
-                )
-              )}
+              <Button
+                icon='arrow-back-outline'
+                color={appRed}
+                minWidth={undefined}
+                onClick={() => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    navigation.replace('Home');
+                  }
+                }}
+                label='Back'
+              />
+
+              <SubmitAndValidateButton
+                icon={addToCartButton.icon}
+                label={addToCartButton.label}
+                color={addToCartButton.color}
+                disabled={addToCartButton.disabled}
+                selector={getCart}
+                minWidth={undefined}
+                thunkApiFunction={() => addCartItem(product)}
+              />
             </View>
 
             <View style={styles.productDescriptionContainer}>
@@ -185,7 +178,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 30,
+    gap: 20,
     width: '100%',
   },
   productDescriptionContainer: {

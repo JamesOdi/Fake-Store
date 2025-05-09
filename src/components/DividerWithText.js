@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { appBlack, appLightGray, subtitleColor } from '../lib/colors';
+import { subtitleColor } from '../lib/colors';
+import Divider from './Divider';
 
 export default function DividerWithText({ text }) {
   return (
     <View style={styles.container}>
-      <View style={styles.divider} />
+      <Divider />
       <Text style={styles.dividerText}>{text}</Text>
-      <View style={styles.divider} />
+      <Divider />
     </View>
   );
 }
@@ -18,12 +19,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-  },
-  divider: {
-    height: 1,
-    flexGrow: 1,
-    flexDirection: 'row',
-    backgroundColor: appLightGray,
   },
   dividerText: {
     color: subtitleColor,

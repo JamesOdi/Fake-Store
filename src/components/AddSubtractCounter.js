@@ -1,22 +1,55 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { appBlue, appWhite } from '../lib/colors';
 import { Feather } from '@expo/vector-icons';
+import { useState } from 'react';
 
-export default function AddSubtractCounter({ count, onAdd, onSubtract }) {
+export default function AddSubtractCounter({
+  count,
+  onAdd,
+  onSubtract,
+  isActive,
+  isComponentLoading = false,
+  action,
+}) {
+  // This add and subtract counter component is used only on the cart page
+  const showLoading = (componentName = '') => {
+    return isActive && componentName == action && isComponentLoading;
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => onSubtract()}
+        onPress={() => {
+          onSubtract();
+        }}
+        disabled={isComponentLoading}
         style={[styles.button, styles.subtractButton]}
       >
-        <Feather name='minus' color={appWhite} />
+        {showLoading('minus') ? (
+          <ActivityIndicator size='small' color={appWhite} />
+        ) : (
+          <Feather name='minus' color={appWhite} />
+        )}
       </TouchableOpacity>
       <Text style={styles.count}>{count}</Text>
       <TouchableOpacity
-        onPress={() => onAdd()}
+        onPress={() => {
+          onAdd();
+        }}
+        disabled={isComponentLoading}
         style={[styles.button, styles.addButton]}
       >
-        <Feather name='plus' color={appWhite} />
+        {showLoading('plus') ? (
+          <ActivityIndicator size='small' color={appWhite} />
+        ) : (
+          <Feather name='plus' color={appWhite} />
+        )}
       </TouchableOpacity>
     </View>
   );

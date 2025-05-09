@@ -6,21 +6,30 @@ import CartStack from '../stacks/cart/CartStack';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import OrdersStack from '../stacks/orders/OrdersStack';
 import ProfileStack from '../stacks/profile/ProfileStack';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TabIconBadge from './TabIconBadge';
 import useUser from '../hooks/useUser';
 import { showErrorAlertDialog } from '../lib/api-request';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect } from 'react';
+import { getTotalNumberOfItems } from '../lib/format-number';
+import { loadCart } from '../store/cart';
+import { loadOrders } from '../store/orders';
 
 export default function BottomTabNavBar() {
   const Tab = createBottomTabNavigator();
-  const totalNumOfItems = useSelector((state) => state.cart.totalNumOfItems);
+  const cartData = useSelector((state) => state.cart.cartData);
+  const ordersData = useSelector((state) => state.orders.orders);
   const { user } = useUser();
+  const dispatch = useDispatch();
 
   const badgeCounts = new Map([
-    ['CartTab', totalNumOfItems],
-    ['OrdersTab', 1],
+    ['CartTab', user ? getTotalNumberOfItems(cartData) : 0],
+    [
+      'OrdersTab',
+      ordersData.filter((order) => !order.is_paid && !order.is_delivered)
+        .length,
+    ],
   ]);
 
   const BadgeIcon = ({ routeName }) => {
@@ -54,13 +63,12 @@ export default function BottomTabNavBar() {
     }, [user])
   );
 
-  const navigation = useNavigation();
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigation.navigate('ProfileTab', { screen: 'Profile' });
-  //   }
-  // }, [navigation, user]);
+  useEffect(() => {
+    if (user) {
+      dispatch(loadCart());
+      dispatch(loadOrders());
+    }
+  }, [user]);
 
   return (
     <Tab.Navigator
@@ -94,7 +102,7 @@ export default function BottomTabNavBar() {
         headerShown: false,
         tabBarStyle: [styles.tabBarStyle /*{ display: 'none' } */],
       })}
-      initialRouteName={user ? undefined : 'ProfileTab'}
+      initialRouteName={user ? 'HomeTab' : 'ProfileTab'}
       screenListeners={({ navigation }) => ({
         state: (e) => {
           return null;

@@ -1,7 +1,16 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
+import { GET_ALL_PRODUCTS, GET_ALL_PRODUCTS_BY_CATEGORY } from '../lib/routes';
 import submitAndValidateThunk from '../lib/submit-and-validate';
 import addExtraReducers from '../lib/addExtraReducers';
+
+export const loadAllProducts = createAsyncThunk(
+  'loadAllProducts',
+  async (_, thunkApi) => {
+    return await submitAndValidateThunk(thunkApi, {
+      route: GET_ALL_PRODUCTS,
+    });
+  }
+);
 
 export const loadProductsData = createAsyncThunk(
   'loadProducts',
@@ -27,7 +36,12 @@ const productsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    addExtraReducers(builder, loadProductsData, initialState, 'products');
+    addExtraReducers({
+      builder,
+      thunk: loadProductsData,
+      initialState,
+      responseKey: 'products',
+    });
   },
 });
 

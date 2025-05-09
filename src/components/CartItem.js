@@ -10,6 +10,9 @@ export default function CartItem({
   onIncrementItemCount,
   onDecrementItemCount,
   onDeleteItem,
+  isActive = false,
+  isComponentLoading = false,
+  action,
 }) {
   return (
     <TouchableOpacity
@@ -26,14 +29,18 @@ export default function CartItem({
 
         <View style={styles.itemActionContainer}>
           <AddSubtractCounter
+            isComponentLoading={isComponentLoading}
             count={item.count}
             onAdd={() => onIncrementItemCount()}
             onSubtract={() => onDecrementItemCount()}
+            isActive={isActive}
+            action={action}
           />
           <Button
             label='Delete'
             minWidth={0}
             color={appRed}
+            isLoading={isActive && isComponentLoading && action == 'delete'}
             buttonStyle='outline'
             onClick={() => onDeleteItem()}
           />
@@ -59,6 +66,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     marginTop: 10,
+    gap: 15,
   },
   title: {
     fontSize: 15,

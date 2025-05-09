@@ -1,8 +1,8 @@
 export const appWhite = '#ffffff';
 export const appBlack = '#333';
-export const appGray = '#808080';
+export const appDarkGray = '#808080';
 export const appLightGray = '#d3d3d3';
-export const appDarkGray = '#a9a9a9';
+export const appGray = '#a9a9a9';
 export const appRed = '#ee3705';
 export const appGreen = '#008000';
 export const appBlue = '#5382a1';

@@ -25,3 +25,15 @@ export function formatCurrency(number) {
 
   return new Intl.NumberFormat('en-AU', options).format(number);
 }
+
+export function getTotalNumberOfItems(cartData) {
+  return cartData.reduce((acc, item) => acc + item.count, 0);
+}
+
+export function getTotalPrice(cartData) {
+  return formatCurrency(
+    cartData.reduce((acc, item) => {
+      return acc + item.product.price * item.count;
+    }, 0)
+  );
+}

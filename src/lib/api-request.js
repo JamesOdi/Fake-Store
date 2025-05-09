@@ -1,7 +1,7 @@
 import { fetch } from 'expo/fetch';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { USER_SIGN_IN, USER_SIGN_UP } from './routes';
+import { CREATE_NEW_ORDER, USER_SIGN_IN, USER_SIGN_UP } from './routes';
 
 const ASYNC_STORAGE_TOKEN_KEY = 'token';
 
@@ -39,7 +39,7 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   }
   try {
     // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     const result = await fetch(url, {
       headers,
       method,
@@ -67,6 +67,10 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       }
     }
 
+    if (route.path == CREATE_NEW_ORDER.path) {
+      console.log('NEW ORDER', JSON.stringify(js, null, 2));
+    }
+
     return {
       body: js,
       status: result.status,
@@ -91,8 +95,8 @@ export function statusOk(status) {
   }
 }
 
-export function showErrorAlertDialog({ title, message }) {
-  Alert.alert(title, message);
+export function showErrorAlertDialog({ title, message, buttons }) {
+  Alert.alert(title, message, buttons);
 }
 
 export async function saveAuthorizationCookie(cookie) {
