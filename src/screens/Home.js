@@ -16,8 +16,10 @@ export default function Home({ navigation }) {
   const { categories, isLoading, error } = useSelector(getCategories);
 
   useEffect(() => {
-    dispatch(loadCategoriesData());
-  }, []);
+    if (categories.length == 0) {
+      dispatch(loadCategoriesData());
+    }
+  }, [categories]);
 
   return (
     <View style={{ flex: 1, backgroundColor: appWhite }}>

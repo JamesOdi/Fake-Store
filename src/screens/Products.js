@@ -29,7 +29,11 @@ export default function Products({ navigation, route }) {
   }, [navigation, category]);
 
   useEffect(() => {
-    dispatch(loadProductsData(category));
+    if (category) {
+      dispatch(loadProductsData(category));
+    } else {
+      navigation.goBack();
+    }
   }, [category]);
 
   const onClickProduct = (id) => {

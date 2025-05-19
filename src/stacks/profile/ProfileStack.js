@@ -18,8 +18,11 @@ export default function ProfileStack() {
     },
   ];
 
+  // Determine initial route based on user
+  const initialRouteName = user ? 'Profile' : 'Authentication';
+
   return (
-    <Stack.Navigator initialRouteName={user ? 'Profile' : 'Authentication'}>
+    <Stack.Navigator key={initialRouteName} initialRouteName={initialRouteName}>
       {stackScreens.map(({ name, component, title }) => (
         <Stack.Screen
           key={name}
@@ -27,7 +30,7 @@ export default function ProfileStack() {
           component={component}
           options={{
             title,
-            headerShown: name != 'Authentication',
+            headerShown: name !== 'Authentication',
           }}
         />
       ))}

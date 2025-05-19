@@ -53,6 +53,8 @@ export default function ProductDetails({ navigation, route }) {
         { title: 'Count', value: count },
         { title: 'Price', value: formatCurrency(price) },
       ]);
+    } else {
+      navigation.goBack();
     }
   }, [product]);
 

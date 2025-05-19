@@ -4,6 +4,8 @@ import { appRed, appWhite, borderColor } from '../lib/colors';
 import Section from '../components/Section';
 import Button from '../components/Button';
 import { showErrorAlertDialog } from '../lib/api-request';
+import EditProfileModal from '../components/EditProfileModal';
+import { useState } from 'react';
 
 export default function Profile({ navigation }) {
   const { user, logout } = useUser();
@@ -28,6 +30,8 @@ export default function Profile({ navigation }) {
     });
   };
 
+  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+
   return (
     <View style={styles.container}>
       <View style={styles.detailsContainer}>
@@ -40,10 +44,10 @@ export default function Profile({ navigation }) {
 
         <View style={styles.actionButtonsContainer}>
           <Button
-            label='Edit Profile'
+            label='Update'
             buttonStyle='outline'
             minWidth={undefined}
-            onClick={() => navigation.navigate('EditProfile')}
+            onClick={() => setShowEditProfileDialog(true)}
           />
           <Button
             label='Sign Out'
@@ -53,6 +57,11 @@ export default function Profile({ navigation }) {
           />
         </View>
       </View>
+      <EditProfileModal
+        currentUser={user}
+        showModal={showEditProfileDialog}
+        onDismissModal={() => setShowEditProfileDialog(false)}
+      />
     </View>
   );
 }

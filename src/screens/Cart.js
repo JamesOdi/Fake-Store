@@ -1,20 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { appLightGray, appWhite } from '../lib/colors';
 import CartItem from '../components/CartItem';
-import {
-  addCartItem,
-  decrementOrRemoveCartItem,
-  getCart,
-  loadCart,
-} from '../store/cart';
+import { addCartItem, decrementOrRemoveCartItem, getCart } from '../store/cart';
 import EmptyList from '../components/EmptyList';
-import Button from '../components/Button';
 import RenderLoadingErrorOrContent from '../components/RenderLoadingErrorOrContent';
 import { getTotalNumberOfItems, getTotalPrice } from '../lib/format-number';
 import SubmitAndValidateButton from '../components/SubmitAndValidateButton';
-import { createNewOrder, getOrders, loadOrders } from '../store/orders';
+import { createNewOrder, getOrders } from '../store/orders';
 
 export default function Cart({ navigation }) {
   const { cartData, isLoading, isComponentLoading, error } =
@@ -42,11 +36,6 @@ export default function Cart({ navigation }) {
       params: { id },
     });
   };
-
-  useEffect(() => {
-    dispatch(loadOrders());
-    dispatch(loadCart());
-  }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: appWhite }}>

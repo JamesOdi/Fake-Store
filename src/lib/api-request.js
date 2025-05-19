@@ -1,9 +1,10 @@
 import { fetch } from 'expo/fetch';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CREATE_NEW_ORDER, USER_SIGN_IN, USER_SIGN_UP } from './routes';
+import { USER_SIGN_IN, USER_SIGN_UP } from './routes';
 
 const ASYNC_STORAGE_TOKEN_KEY = 'token';
+export const ASYNC_STORAGE_USER_KEY = 'user';
 
 export async function apiRequest({ route, routeParams, bodyParams }) {
   // see: https://docs.expo.dev/guides/environment-variables/
@@ -29,7 +30,6 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
   }
 
   const token = await getAuthorizationCookie();
-
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Accept', 'application/json');
@@ -64,11 +64,13 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
       if ('token' in js) {
         // Save the authorization cookie if it exists in the response
         await saveAuthorizationCookie(js.token);
+        await saveUserProfile(js);
       }
     }
 
-    if (route.path == CREATE_NEW_ORDER.path) {
-      console.log('NEW ORDER', JSON.stringify(js, null, 2));
+    if (js.status == 'error' && js.message == 'Wrong token.') {
+      // If the token is wrong then delete the user profile
+      await deleteUserProfile();
     }
 
     return {
@@ -87,7 +89,13 @@ export async function apiRequest({ route, routeParams, bodyParams }) {
 
 export function statusOk(status) {
   if (typeof status == 'object' && 'status' in status) {
-    return status.status >= 200 && status.status < 300;
+    if (typeof status.status == 'string') {
+      return status.status == 'OK';
+    } else if (typeof status.status == 'number') {
+      return status.status >= 200 && status.status < 300;
+    } else {
+      return false;
+    }
   } else if (typeof status == 'number') {
     return status >= 200 && status < 300;
   } else {
@@ -114,4 +122,32 @@ export async function getAuthorizationCookie() {
   } catch (e) {
     throw e;
   }
+}
+
+export async function saveUserProfile(user) {
+  try {
+    await AsyncStorage.setItem(ASYNC_STORAGE_USER_KEY, JSON.stringify(user));
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function getUserProfile() {
+  try {
+    const authorizationCookie = await getAuthorizationCookie();
+    // If authorization cookie exists then get the user stored
+    if (authorizationCookie) {
+      const user = await AsyncStorage.getItem(ASYNC_STORAGE_USER_KEY);
+      return user && JSON.parse(user);
+    } else {
+      await deleteUserProfile();
+      return undefined;
+    }
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function deleteUserProfile() {
+  await AsyncStorage.clear();
 }

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { appBlue, appWhite, subtitleColor } from '../lib/colors';
+import { appBlue, subtitleColor } from '../lib/colors';
 import MyInput from '../components/MyInput';
 import ViewWithKeyboardInput from '../components/ViewWithKeyboardInput';
 import DividerWithText from '../components/DividerWithText';
@@ -31,11 +31,11 @@ export default function Authentication({ navigation }) {
         },
       ],
       footerPrompt: 'Need an account?',
-      footerLinkText: 'Create one',
+      footerLinkText: 'Sign Up',
     },
     signUp: {
       isSignInMode: false,
-      title: 'Sign Up',
+      title: 'Sign Up a new user',
       subtitle: 'Create a new account to begin',
       inputFields: [
         {
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 50,
+    fontSize: 40,
   },
   subtitle: {
     fontSize: 18,

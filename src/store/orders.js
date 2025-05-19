@@ -8,6 +8,8 @@ import {
 } from '../lib/routes';
 import addExtraReducers from '../lib/addExtraReducers';
 import { clearCart } from './cart';
+import { showErrorAlertDialog, statusOk } from '../lib/api-request';
+import { formatCurrency } from '../lib/format-number';
 
 export const loadOrders = createAsyncThunk(
   'loadOrders',
@@ -21,7 +23,7 @@ export const loadOrders = createAsyncThunk(
         route: GET_USER_ORDERS,
       });
 
-      if ('status' in ordersResponse && ordersResponse.status === 'OK') {
+      if (statusOk(ordersResponse)) {
         const result = ordersResponse.orders.map((order) => {
           const parsedOrderItems = JSON.parse(order.order_items);
           // "[{\"prodID\":1,\"price\":3.5,\"quantity\":2}]"
@@ -65,7 +67,7 @@ export const createNewOrder = createAsyncThunk(
       route: GET_USER_ORDERS,
     });
 
-    if ('status' in ordersResponse && ordersResponse.status === 'OK') {
+    if (statusOk(ordersResponse)) {
       const items = cartData.map((data) => {
         return {
           prodID: data.product.id,
@@ -81,13 +83,10 @@ export const createNewOrder = createAsyncThunk(
         },
       });
 
-      if (
-        'status' in createNewOrderResponse &&
-        createNewOrderResponse.status == 'OK'
-      ) {
-        await thunkApi.dispatch(clearCart());
+      if (statusOk(createNewOrderResponse)) {
         const response = await thunkApi.dispatch(loadOrders());
         if (response.type.endsWith('fulfilled')) {
+          await thunkApi.dispatch(clearCart());
           return response.payload;
         } else {
           return thunkApi.rejectWithValue('Error loading orders');
@@ -102,7 +101,7 @@ export const createNewOrder = createAsyncThunk(
 export const payOrder = createAsyncThunk(
   'payOrder',
   async (orderId, thunkApi) => {
-    return await submitAndValidateThunk(thunkApi, {
+    const response = await submitAndValidateThunk(thunkApi, {
       route: UPDATE_ORDER,
       bodyParams: {
         orderID: orderId,
@@ -110,13 +109,22 @@ export const payOrder = createAsyncThunk(
         isDelivered: 0,
       },
     });
+
+    if ('status' in response && response.status == 'OK') {
+      return {
+        result: {
+          orderId,
+        },
+      };
+    }
+    return response;
   }
 );
 
 export const deliverOrder = createAsyncThunk(
   'deliverOrder',
   async (orderId, thunkApi) => {
-    return await submitAndValidateThunk(thunkApi, {
+    const response = await submitAndValidateThunk(thunkApi, {
       route: UPDATE_ORDER,
       bodyParams: {
         orderID: orderId,
@@ -124,6 +132,15 @@ export const deliverOrder = createAsyncThunk(
         isDelivered: 1,
       },
     });
+
+    if (statusOk(response)) {
+      return {
+        result: {
+          orderId,
+        },
+      };
+    }
+    return response;
   }
 );
 
@@ -151,6 +168,14 @@ export const orders = createSlice({
       initialState,
       responseKey: 'orders',
       useComponentLoading: true,
+      formatFulfilledResponse: (response) => {
+        showErrorAlertDialog({
+          title: 'Order Placed Successfully',
+          message:
+            'Thank you for your purchase! Your order has been placed and your cart has been cleared. You can continue shopping and add more items to your cart.',
+        });
+        return response;
+      },
     });
     addExtraReducers({
       builder,
@@ -159,15 +184,19 @@ export const orders = createSlice({
       responseKey: 'orders',
       useComponentLoading: true,
       formatFulfilledResponse: (response, state) => {
-        if (response.result.changes > 0) {
-          const order = state.orders.find(
-            ({ id }) => id == response.result.lastID
-          );
-          if (order) {
-            order.is_paid = true;
-            order.is_delivered = false;
-          }
+        const order = state.orders.find(
+          ({ id }) => id == response.result.orderId
+        );
+        if (order) {
+          order.is_paid = true;
+          order.is_delivered = false;
         }
+        showErrorAlertDialog({
+          title: 'Payment Successful',
+          message: `Thank you for your payment! Your order has been marked as paid. Total amount: ${formatCurrency(
+            order.total_price / 100
+          )}.`,
+        });
         return state.orders;
       },
     });
@@ -178,15 +207,21 @@ export const orders = createSlice({
       responseKey: 'orders',
       useComponentLoading: true,
       formatFulfilledResponse: (response, state) => {
-        if (response.result.changes > 0) {
-          const order = state.orders.find(
-            ({ id }) => id == response.result.lastID
-          );
-          if (order) {
-            order.is_paid = true;
-            order.is_delivered = true;
-          }
+        const order = state.orders.find(
+          ({ id }) => id == response.result.orderId
+        );
+        if (order) {
+          order.is_paid = true;
+          order.is_delivered = true;
         }
+        showErrorAlertDialog({
+          title: 'Order Delivered',
+          message: `Your order has been successfully delivered! Total amount paid: ${formatCurrency(
+            order.total_price / 100
+          )}. Number of items: ${
+            order.item_numbers
+          }. Thank you for shopping with us!`,
+        });
         return state.orders;
       },
     });

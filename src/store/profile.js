@@ -48,6 +48,9 @@ const userSlice = createSlice({
     signOutUser: (state) => {
       state.user = null;
     },
+    refreshUserProfile: (state, action) => {
+      state.user = action.payload;
+    },
   },
   extraReducers: (builder) => {
     thunkApiList.map((thunkApi) => {
@@ -57,11 +60,21 @@ const userSlice = createSlice({
         initialState,
         responseKey: 'user',
         useComponentLoading: true,
+        formatFulfilledResponse: (response, state) => {
+          if (thunkApi.typePrefix == 'updateProfile') {
+            return {
+              ...state.user,
+              name: response.name,
+            };
+          } else {
+            return response;
+          }
+        },
       });
     });
   },
 });
 
-export const { signOutUser } = userSlice.actions;
+export const { signOutUser, refreshUserProfile } = userSlice.actions;
 export const getUser = (state) => state.user;
 export default userSlice.reducer;

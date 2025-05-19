@@ -3,28 +3,27 @@ import { AntDesign } from '@expo/vector-icons';
 import { appBlue, appLightGray } from '../lib/colors';
 import HomeStack from '../stacks/home/HomeStack';
 import CartStack from '../stacks/cart/CartStack';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import OrdersStack from '../stacks/orders/OrdersStack';
 import ProfileStack from '../stacks/profile/ProfileStack';
 import { useDispatch, useSelector } from 'react-redux';
 import TabIconBadge from './TabIconBadge';
 import useUser from '../hooks/useUser';
 import { showErrorAlertDialog } from '../lib/api-request';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { getTotalNumberOfItems } from '../lib/format-number';
 import { loadCart } from '../store/cart';
 import { loadOrders } from '../store/orders';
 
 export default function BottomTabNavBar() {
   const Tab = createBottomTabNavigator();
-  const cartData = useSelector((state) => state.cart.cartData);
+  const { cartData } = useSelector((state) => state.cart);
   const ordersData = useSelector((state) => state.orders.orders);
-  const { user } = useUser();
   const dispatch = useDispatch();
+  const { user } = useUser();
 
   const badgeCounts = new Map([
-    ['CartTab', user ? getTotalNumberOfItems(cartData) : 0],
+    ['CartTab', getTotalNumberOfItems(cartData)],
     [
       'OrdersTab',
       ordersData.filter((order) => !order.is_paid && !order.is_delivered)
@@ -34,7 +33,7 @@ export default function BottomTabNavBar() {
 
   const BadgeIcon = ({ routeName }) => {
     const count = badgeCounts.get(routeName);
-    if (count) {
+    if (user && count) {
       return <TabIconBadge count={count} />;
     }
     return null;
@@ -47,28 +46,15 @@ export default function BottomTabNavBar() {
     { name: 'ProfileTab', component: ProfileStack, title: 'User Profile' },
   ];
 
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        if (!user) {
-          return true;
-        }
-        return false;
-      };
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress
-      );
-      return () => backHandler.remove();
-    }, [user])
-  );
-
   useEffect(() => {
     if (user) {
       dispatch(loadCart());
       dispatch(loadOrders());
+    } else {
     }
   }, [user]);
+
+  const initialRouteName = user ? 'HomeTab' : 'ProfileTab';
 
   return (
     <Tab.Navigator
@@ -102,13 +88,20 @@ export default function BottomTabNavBar() {
         headerShown: false,
         tabBarStyle: [styles.tabBarStyle /*{ display: 'none' } */],
       })}
-      initialRouteName={user ? 'HomeTab' : 'ProfileTab'}
-      screenListeners={({ navigation }) => ({
-        state: (e) => {
-          return null;
-          // navigation.
-        },
-      })}
+      initialRouteName={initialRouteName}
+      screenListeners={({ route }) => {
+        if (route.name != 'ProfileTab' && !user) {
+          return {
+            tabPress: (e) => {
+              e.preventDefault();
+              showErrorAlertDialog({
+                title: 'Not Logged In',
+                message: 'You must log in to view this tab',
+              });
+            },
+          };
+        }
+      }}
     >
       {/* Render all the tab screens */}
       {tabScreens.map(({ name, component, title }) => {
@@ -119,18 +112,6 @@ export default function BottomTabNavBar() {
             component={component}
             options={{ title }}
             // Usability of listeners found at: https://reactnavigation.org/docs/navigation-events/?config=dynamic#listeners-prop-on-screen
-            listeners={{
-              tabPress: (e) => {
-                // Disable all tabs when the user is unauthorized
-                if (name != 'ProfileTab' && !user) {
-                  e.preventDefault();
-                  showErrorAlertDialog({
-                    title: 'Not Logged In',
-                    message: 'You must log in to view this tab',
-                  });
-                }
-              },
-            }}
           />
         );
       })}

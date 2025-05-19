@@ -7,6 +7,7 @@ import {
   UPDATE_CART_ITEMS,
 } from '../lib/routes';
 import addExtraReducers from '../lib/addExtraReducers';
+import { statusOk } from '../lib/api-request';
 
 export const loadCart = createAsyncThunk('loadCart', async (_, thunkApi) => {
   const productsResponse = await submitAndValidateThunk(thunkApi, {
@@ -44,7 +45,7 @@ export const addCartItem = createAsyncThunk(
       route: GET_CART_ITEMS,
     });
     let cartItems = [];
-    if ('items' in cartItemsResponse) {
+    if (statusOk(cartItemsResponse) && 'items' in cartItemsResponse) {
       cartItems = cartItemsResponse.items;
     }
 
@@ -84,7 +85,7 @@ export const decrementOrRemoveCartItem = createAsyncThunk(
     });
 
     let cartItems = [];
-    if ('items' in cartItemsResponse) {
+    if (statusOk(cartItemsResponse) && 'items' in cartItemsResponse) {
       cartItems = cartItemsResponse.items;
     }
 
@@ -129,7 +130,7 @@ export const clearCart = createAsyncThunk('clearCart', async (_, thunkApi) => {
     },
   });
 
-  if ('status' in response && response.status == 'OK') {
+  if (statusOk(response)) {
     return [];
   } else {
     return response;

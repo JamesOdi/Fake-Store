@@ -3,7 +3,6 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import OrderGroup from '../components/OrderGroup';
 import { appWhite } from '../lib/colors';
-import { payOrder } from '../store/orders';
 
 export default function Orders({ navigation }) {
   const ordersData = useSelector((state) => state.orders.orders);

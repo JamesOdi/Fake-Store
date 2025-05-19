@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { appBlack, appWhite } from '../lib/colors';
 import ProductImage from './ProductImage';

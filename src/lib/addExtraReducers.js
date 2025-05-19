@@ -14,18 +14,17 @@ export default function addExtraReducers({
       } else {
         state.isLoading = true;
       }
-      // state[responseKey] = initialState[responseKey];
       state.error = null;
     })
     .addCase(thunk.fulfilled, (state, action) => {
+      // If the formatFulfilledResponse function is provided, use it to format the response
+      state[responseKey] = formatFulfilledResponse(action.payload, state);
+      state.error = null;
       if (useComponentLoading) {
         state.isComponentLoading = false;
       } else {
         state.isLoading = false;
       }
-      state.error = null;
-      // If the formatFulfilledResponse function is provided, use it to format the response
-      state[responseKey] = formatFulfilledResponse(action.payload, state);
     })
     .addCase(thunk.rejected, (state, action) => {
       if (useComponentLoading) {

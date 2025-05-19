@@ -12,6 +12,10 @@ export default async function submitAndValidateThunk(
     if (statusOk(response)) {
       const data = response.body;
       if ('status' in data && data.status == 'error') {
+        if (data.message == 'Wrong token.') {
+          // Notify the thunkApi to logout the user
+          thunkApi.dispatch({ type: 'user/signOutUser' });
+        }
         return thunkApi.rejectWithValue(data.message);
       }
       return data;
